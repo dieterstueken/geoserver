@@ -29,6 +29,7 @@ public class FileWrapperResourceTheoryTest extends ResourceTheoryTest {
     protected Resource getResource(String path) throws Exception {
         File file = Paths.toFile(null, path);
         LOGGER.info("getResource file:" + file);
+
         if (!file.isAbsolute()) {
             // in linux, an absolute path might appear relative if the root slash has been removed.
             // This can also occur with the root path if java.io.tmpdir is relative.
