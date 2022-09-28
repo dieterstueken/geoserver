@@ -32,8 +32,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
+
 import org.apache.commons.io.IOUtils;
 import org.geoserver.platform.resource.Resource.Type;
+import org.geotools.util.logging.Logging;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
@@ -46,6 +49,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Theories.class)
 public abstract class ResourceTheoryTest {
+
+    protected final Logger LOGGER = Logging.getLogger(getClass().getSimpleName());
 
     protected abstract Resource getResource(String path) throws Exception;
 
