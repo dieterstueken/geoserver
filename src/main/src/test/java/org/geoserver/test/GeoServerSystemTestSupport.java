@@ -353,7 +353,8 @@ public class GeoServerSystemTestSupport extends GeoServerBaseTestSupport<SystemT
         if (applicationContext == null) {
             return;
         }
-        getGeoServer().dispose();
+        //getGeoServer().dispose();
+        LOGGER.warning("============= GeoServer dispose =============");
         try {
             // dispose WFS XSD schema's - they will otherwise keep geoserver instance alive
             // forever!!
