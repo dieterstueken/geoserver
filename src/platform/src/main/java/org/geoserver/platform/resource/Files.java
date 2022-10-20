@@ -77,7 +77,7 @@ public final class Files {
 
         @Override
         public InputStream in() {
-            final File actualFile = file();
+            final File actualFile = file;
             if (!actualFile.exists()) {
                 throw new IllegalStateException("Cannot access " + actualFile);
             }
