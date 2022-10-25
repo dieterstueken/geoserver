@@ -2167,6 +2167,12 @@ public class ResourcePool {
         if (styleResource == null) {
             throw new IOException("No such resource: " + style.getFilename());
         }
+
+        if (styleResource.getType() == Resource.Type.UNDEFINED) {
+            File path = styleResource.file();
+            LOGGER.log(Level.WARNING, "create empty resource: " + path);
+        }
+
         return new BufferedReader(new InputStreamReader(styleResource.in()));
     }
 
