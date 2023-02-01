@@ -1096,9 +1096,7 @@ public abstract class GeoServerLoader {
 
     /** Helper method which uses xstream to depersist an object as xml from disk. */
     <T> T depersist(XStreamPersister xp, Resource f, Class<T> clazz) throws IOException {
-        try (InputStream in = new ByteArrayInputStream(f.getContents())) {
-            return xp.load(in, clazz);
-        }
+        return xp.load(f, clazz);
     }
 
     /** Helper method which uses xstream to depersist an object as xml from disk. */

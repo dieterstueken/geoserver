@@ -6,7 +6,6 @@ package org.geoserver.metadata.data.service.impl;
 
 import com.thoughtworks.xstream.io.StreamException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -104,14 +103,14 @@ public class MetadataTemplateServiceImpl implements MetadataTemplateService, Res
             Resource listFile = folder.get(LIST_FILE);
 
             if (Resources.exists(listFile)) {
-                try (InputStream inPriorities = listFile.in()) {
-                    List<String> priorities = persister.load(inPriorities, List.class);
+                try {
+                    List<String> priorities = persister.load(listFile, List.class);
 
                     for (String id : priorities) {
                         Resource templateFile = folder.get(id + ".xml");
-                        try (InputStream inTemplate = templateFile.in()) {
+                        try {
                             MetadataTemplate template =
-                                    persister.load(inTemplate, MetadataTemplate.class);
+                                    persister.load(templateFile, MetadataTemplate.class);
                             templates.add(template);
                         } catch (StreamException | IOException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(), e);

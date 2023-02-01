@@ -2699,17 +2699,13 @@ public class GeoServerSecurityManager implements ApplicationContextAware, Applic
     /** reads a config file from the specified directly using the specified xstream persister */
     <T extends SecurityConfig> T loadConfig(Class<T> config, Resource resource, XStreamPersister xp)
             throws IOException {
-        try (InputStream in = resource.in()) {
-            Object loaded = xp.load(in, SecurityConfig.class).clone(true);
-            return config.cast(loaded);
-        }
+        Object loaded = xp.load(resource, SecurityConfig.class).clone(true);
+        return config.cast(loaded);
     }
     /** reads a config file from the specified directly using the specified xstream persister */
     SecurityConfig loadConfigFile(Resource directory, String filename, XStreamPersister xp)
             throws IOException {
-        try (InputStream fin = directory.get(filename).in()) {
-            return xp.load(fin, SecurityConfig.class).clone(true);
-        }
+        return xp.load(directory.get(filename), SecurityConfig.class).clone(true);
     }
 
     /**

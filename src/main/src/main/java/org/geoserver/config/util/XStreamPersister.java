@@ -37,6 +37,8 @@ import com.thoughtworks.xstream.mapper.DynamicProxyMapper;
 import com.thoughtworks.xstream.mapper.Mapper;
 import com.thoughtworks.xstream.mapper.PackageAliasingMapper;
 import java.awt.geom.AffineTransform;
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -146,6 +148,7 @@ import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensions;
+import org.geoserver.platform.resource.Resource;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.SecureCatalogImpl;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -725,6 +728,32 @@ public class XStreamPersister {
         }
 
         return obj;
+    }
+
+    /**
+     * Loads an object from a resource, if it exists.
+     *
+     * @param resource The resource to read the object from.
+     * @param clazz The class of the expected object.
+     * @throws IOException if something went wrong.
+     * @throws FileNotFoundException if the file does not exist.
+     */
+    public <T> T load(Resource resource, Class<T> clazz) throws IOException {
+        Resource.Type type = resource.getType();
+
+        if (type == Resource.Type.RESOURCE) {
+            try (InputStream in = resource.in()) {
+                // use a BufferedInputStream (if it not already is).
+                InputStream bin =
+                        in instanceof BufferedInputStream ? in : new BufferedInputStream(in, 512);
+                return load(bin, clazz);
+            }
+        }
+
+        String message = resource.path();
+        if (type == Resource.Type.DIRECTORY) message = "\"" + message + "\" is a directory";
+
+        throw new FileNotFoundException(message);
     }
 
     /**

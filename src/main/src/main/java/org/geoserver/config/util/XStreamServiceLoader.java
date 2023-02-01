@@ -5,7 +5,6 @@
  */
 package org.geoserver.config.util;
 
-import java.io.BufferedInputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,10 +52,8 @@ public abstract class XStreamServiceLoader<T extends ServiceInfo> implements Ser
 
         if (Resources.exists(file = directory.get(getFilename()))) {
             // xstream it in
-            try (BufferedInputStream in = new BufferedInputStream(file.in())) {
-                XStreamPersister xp = getXstreamPersister(gs);
-                return initialize(xp.load(in, getServiceClass()));
-            }
+            T service = getXstreamPersister(gs).load(file, getServiceClass());
+            return initialize(service);
         } else {
             // create an 'empty' object
             T service = createServiceFromScratch(gs);

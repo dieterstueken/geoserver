@@ -5,7 +5,6 @@
  */
 package org.geoserver.logging;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -120,10 +119,7 @@ public class LoggingStartupContextListener implements ServletContextListener {
         Resource f = store.get("logging.xml");
         if (f != null && f.getType() == Resource.Type.RESOURCE) {
             XStreamPersister xp = new XStreamPersisterFactory().createXMLPersister();
-            try (BufferedInputStream in = new BufferedInputStream(f.in())) {
-                LoggingInfo loginfo = xp.load(in, LoggingInfo.class);
-                return loginfo;
-            }
+            return xp.load(f, LoggingInfo.class);
         } else {
             return null;
         }

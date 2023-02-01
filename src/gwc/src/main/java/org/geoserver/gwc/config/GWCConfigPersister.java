@@ -9,7 +9,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.thoughtworks.xstream.XStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -72,9 +71,7 @@ public class GWCConfigPersister {
         XStreamPersister xmlPersister = this.persisterFactory.createXMLPersister();
         configureXstream(xmlPersister.getXStream());
         try {
-            try (InputStream in = configFile.in()) {
-                this.config = xmlPersister.load(in, GWCConfig.class);
-            }
+            this.config = xmlPersister.load(configFile, GWCConfig.class);
             LOGGER.fine("GWC GeoServer specific configuration loaded from " + GWC_CONFIG_FILE);
         } catch (Exception e) {
             LOGGER.log(
