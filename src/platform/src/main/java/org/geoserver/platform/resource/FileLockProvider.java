@@ -39,7 +39,7 @@ public class FileLockProvider implements LockProvider, ServletContextAware {
     /** max lock attempts */
     int maxLockAttempts = 120 * 1000 / waitBeforeRetry;
 
-    MemoryLockProvider memoryProvider = new MemoryLockProvider();
+    final MemoryLockProvider memoryProvider = new MemoryLockProvider();
 
     public FileLockProvider() {
         // base directory obtained from servletContext

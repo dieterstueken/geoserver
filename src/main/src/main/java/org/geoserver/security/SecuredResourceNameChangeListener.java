@@ -56,8 +56,7 @@ public class SecuredResourceNameChangeListener implements CatalogListener {
 
     @Override
     public void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
-        Lock lock = dao.lock();
-        try {
+        try(Lock lock = dao.lock()) {
             final String removedObjectName; // for logging
             final Predicate<DataAccessRule> filter;
             final CatalogInfo eventSource = event.getSource();
@@ -83,8 +82,6 @@ public class SecuredResourceNameChangeListener implements CatalogListener {
                             String.format(
                                     "Removing Security Rules for deleted %s", removedObjectName);
             apply(filter, dao::removeRule, message);
-        } finally {
-            lock.release();
         }
     }
 
@@ -95,8 +92,7 @@ public class SecuredResourceNameChangeListener implements CatalogListener {
 
     @Override
     public void handlePostModifyEvent(CatalogPostModifyEvent event) throws CatalogException {
-        Lock lock = dao.lock();
-        try {
+        try(Lock lock = dao.lock()) {
             final String oldName;
             final String newName;
             {
@@ -152,8 +148,6 @@ public class SecuredResourceNameChangeListener implements CatalogListener {
                         dao.addRule(r);
                     };
             apply(filter, safeUpdater, message);
-        } finally {
-            lock.release();
         }
     }
 

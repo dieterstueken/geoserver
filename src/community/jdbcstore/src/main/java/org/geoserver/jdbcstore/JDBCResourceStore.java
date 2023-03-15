@@ -210,12 +210,9 @@ public class JDBCResourceStore implements ResourceStore {
 
         @Override
         public InputStream in() {
-            final Lock lock = lock();
-            try {
+            try(Lock lock = lock()) {
                 entry.createResource();
                 return getIStream();
-            } finally {
-                lock.release();
             }
         }
 
@@ -244,13 +241,10 @@ public class JDBCResourceStore implements ResourceStore {
             if (getType() == Type.DIRECTORY) {
                 throw new IllegalStateException("Directory (not a file)");
             }
-            final Lock lock = lock();
-            try {
+            try(Lock lock = lock()) {
                 return cache.cache(this, false);
             } catch (IOException ex) {
                 throw new IllegalStateException(ex);
-            } finally {
-                lock.release();
             }
         }
 
@@ -259,13 +253,10 @@ public class JDBCResourceStore implements ResourceStore {
             if (getType() == Type.RESOURCE) {
                 throw new IllegalStateException("File (not a directory)");
             }
-            final Lock lock = lock();
-            try {
+            try(Lock lock = lock()) {
                 return cache.cache(this, true);
             } catch (IOException ex) {
                 throw new IllegalStateException(ex);
-            } finally {
-                lock.release();
             }
         }
 
@@ -329,9 +320,8 @@ public class JDBCResourceStore implements ResourceStore {
 
         @Override
         public boolean delete() {
-            List<Lock> locks = new ArrayList<Lock>();
-            lockRecursively(locks);
-            try {
+            try(Locks locks = new Locks()) {
+                lockRecursively(locks);
                 List<ResourceNotification.Event> events =
                         SimpleResourceNotificationDispatcher.createEvents(
                                 this, ResourceNotification.Kind.ENTRY_DELETE);
@@ -345,10 +335,6 @@ public class JDBCResourceStore implements ResourceStore {
                     return true;
                 } else {
                     return false;
-                }
-            } finally {
-                for (Lock lock : locks) {
-                    lock.release();
                 }
             }
         }
@@ -416,8 +402,7 @@ public class JDBCResourceStore implements ResourceStore {
 
             @Override
             public void close() throws IOException {
-                final Lock lock = lock();
-                try {
+                try(Lock lock = lock()) {
                     List<ResourceNotification.Event> events =
                             SimpleResourceNotificationDispatcher.createEvents(
                                     JDBCResource.this, ResourceNotification.Kind.ENTRY_MODIFY);
@@ -430,8 +415,6 @@ public class JDBCResourceStore implements ResourceStore {
                                     ResourceNotification.Kind.ENTRY_MODIFY,
                                     System.currentTimeMillis(),
                                     events));
-                } finally {
-                    lock.release();
                 }
             }
         }

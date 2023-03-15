@@ -32,12 +32,6 @@ public class FileSystemResourceStore implements ResourceStore {
     static final Logger LOGGER = Logging.getLogger(FileSystemResource.class);
 
     public static final String GS_LOCK_TRACE = "gs.lock.trace";
-    /**
-     * When true, the stack trace that got an input stream that wasn't closed is recorded and then
-     * printed out when warning the user about this.
-     */
-    protected static final Boolean TRACE_ENABLED =
-            "true".equalsIgnoreCase(System.getProperty(GS_LOCK_TRACE));
 
     /** LockProvider used to secure resources for exclusive access */
     protected LockProvider lockProvider = new NullLockProvider();
@@ -207,13 +201,6 @@ public class FileSystemResourceStore implements ResourceStore {
                 throw new IllegalStateException("File not found " + actualFile);
             }
             final Lock lock = lock();
-            final Throwable tracer;
-            if (TRACE_ENABLED) {
-                tracer = new Exception();
-                tracer.fillInStackTrace();
-            } else {
-                tracer = null;
-            }
             try {
                 return new FileInputStream(file) {
                     boolean closed = false;
@@ -255,19 +242,16 @@ public class FileSystemResourceStore implements ResourceStore {
                 // OutputStream wrapper used to write to a temporary file
                 // (and only lock during move to actualFile)
                 return new OutputStream() {
-                    FileOutputStream delegate = new FileOutputStream(temp);
+                    final FileOutputStream delegate = new FileOutputStream(temp);
 
                     @Override
                     public void close() throws IOException {
                         delegate.close();
                         // if already closed, there should be no exception (see spec Closeable)
                         if (temp.exists()) {
-                            Lock lock = lock();
-                            try {
+                            try(Lock lock = lock()) {
                                 // no errors, overwrite the original file
                                 Files.move(temp, actualFile);
-                            } finally {
-                                lock.release();
                             }
                         }
                     }
@@ -309,17 +293,13 @@ public class FileSystemResourceStore implements ResourceStore {
                                     "Unable to create " + parent.getAbsolutePath());
                         }
                     }
-                    if (parent.isDirectory()) {
-                        Lock lock = lock();
-                        boolean created;
-                        try {
-                            created = file.createNewFile();
-                        } finally {
-                            lock.release();
-                        }
-                        if (!created) {
-                            throw new FileNotFoundException(
-                                    "Unable to create " + file.getAbsolutePath());
+                    if (parent.isDirectory()) {;
+                        try(Lock lock = lock()) {
+                            boolean created = file.createNewFile();
+                            if (!created) {
+                                throw new FileNotFoundException(
+                                        "Unable to create " + file.getAbsolutePath());
+                            }
                         }
                     } else {
                         throw new FileNotFoundException(
@@ -352,16 +332,12 @@ public class FileSystemResourceStore implements ResourceStore {
                         }
                     }
                     if (parent.isDirectory()) {
-                        Lock lock = lock();
-                        boolean created;
-                        try {
-                            created = file.mkdir();
-                        } finally {
-                            lock.release();
-                        }
-                        if (!created) {
-                            throw new FileNotFoundException(
-                                    "Unable to create " + file.getAbsolutePath());
+                        try(Lock lock = lock()) {
+                            boolean created = file.mkdir();
+                            if (!created) {
+                                throw new FileNotFoundException(
+                                        "Unable to create " + file.getAbsolutePath());
+                            }
                         }
                     } else {
                         throw new FileNotFoundException(
@@ -475,11 +451,8 @@ public class FileSystemResourceStore implements ResourceStore {
 
         @Override
         public boolean delete() {
-            Lock lock = lock();
-            try {
+            try(Lock lock = lock()) {
                 return Files.delete(file);
-            } finally {
-                lock.release();
             }
         }
 
@@ -535,12 +508,9 @@ public class FileSystemResourceStore implements ResourceStore {
                 }
 
                 java.nio.file.Files.write(temp.toPath(), byteArray);
-                Lock lock = lock();
-                try {
+                try(Lock lock = lock()) {
                     // no errors, overwrite the original file
                     Files.move(temp, actualFile);
-                } finally {
-                    lock.release();
                 }
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException("Cannot access " + actualFile, e);

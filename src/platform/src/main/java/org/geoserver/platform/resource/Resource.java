@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 
@@ -24,7 +25,7 @@ import org.apache.commons.io.IOUtils;
  */
 public interface Resource {
     /** Enumeration indicating kind of resource used. */
-    public enum Type {
+    enum Type {
         /**
          * Resource directory (contents available using {@link Resource#list()}).
          *
@@ -46,9 +47,26 @@ public interface Resource {
     }
 
     /** Token used to reserve resource for use. */
-    public interface Lock {
+    interface Lock extends AutoCloseable {
         /** Releases the lock on the specified key */
-        public void release();
+        void release();
+
+        @Override
+        default void close() {
+            release();
+        }
+    }
+
+    class Locks extends ArrayList<Lock> implements AutoCloseable {
+
+        @Override
+        public void close() {
+            while (!isEmpty()) {
+                int i = size() - 1;
+                Lock lock = remove(i - 1);
+                lock.close();
+            }
+        }
     }
 
     /**
