@@ -63,8 +63,9 @@ public interface Resource {
         public void close() {
             while (!isEmpty()) {
                 int i = size() - 1;
-                Lock lock = remove(i - 1);
-                lock.close();
+                try (Lock lock = remove(i - 1)) {
+                    // just close it
+                }
             }
         }
     }

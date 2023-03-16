@@ -37,7 +37,7 @@ public class CustomSaslConfig implements SaslConfig {
 
     @Override
     public SaslMechanism getSaslMechanism(String[] serverMechanisms) {
-        Set<String> server = new HashSet<String>(Arrays.asList(serverMechanisms));
+        Set<String> server = new HashSet<>(Arrays.asList(serverMechanisms));
         for (String m : mechanisms) {
             if (server.contains(m)) {
                 if (m.equals("PLAIN")) {

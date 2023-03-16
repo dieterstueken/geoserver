@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 public class Start {
     private static final Logger log = LoggerFactory.getLogger(Start.class);
 
+    @SuppressWarnings("PMD.CloseResource")
     public static void main(String[] args) {
         // don't even think of serving more than XX requests in parallel...
         // we have a limit in our processing and memory capacities
         ThreadPoolExecutor tp = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         tp.setMaximumPoolSize(50);
-
         Server server = null;
         ServerConnector conn = null;
         try {
@@ -112,12 +112,8 @@ public class Start {
         if (props == null || !props.exists()) {
             throw new IllegalArgumentException("Bad file name argument: " + props);
         }
-        FileInputStream is = null;
-        try {
-            is = new FileInputStream(props);
+        try (FileInputStream is = new FileInputStream(props)) {
             prop.load(is);
-        } finally {
-            if (is != null) is.close();
         }
 
         return prop;

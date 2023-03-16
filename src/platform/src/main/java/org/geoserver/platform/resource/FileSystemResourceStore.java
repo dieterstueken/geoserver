@@ -200,6 +200,7 @@ public class FileSystemResourceStore implements ResourceStore {
             if (!actualFile.exists()) {
                 throw new IllegalStateException("File not found " + actualFile);
             }
+            @SuppressWarnings("PMD.CloseResource")
             final Lock lock = lock();
             try {
                 return new FileInputStream(file) {
@@ -249,7 +250,7 @@ public class FileSystemResourceStore implements ResourceStore {
                         delegate.close();
                         // if already closed, there should be no exception (see spec Closeable)
                         if (temp.exists()) {
-                            try(Lock lock = lock()) {
+                            try (Lock lock = lock()) {
                                 // no errors, overwrite the original file
                                 Files.move(temp, actualFile);
                             }
@@ -293,8 +294,8 @@ public class FileSystemResourceStore implements ResourceStore {
                                     "Unable to create " + parent.getAbsolutePath());
                         }
                     }
-                    if (parent.isDirectory()) {;
-                        try(Lock lock = lock()) {
+                    if (parent.isDirectory()) {
+                        try (Lock lock = lock()) {
                             boolean created = file.createNewFile();
                             if (!created) {
                                 throw new FileNotFoundException(
@@ -332,7 +333,7 @@ public class FileSystemResourceStore implements ResourceStore {
                         }
                     }
                     if (parent.isDirectory()) {
-                        try(Lock lock = lock()) {
+                        try (Lock lock = lock()) {
                             boolean created = file.mkdir();
                             if (!created) {
                                 throw new FileNotFoundException(
@@ -451,7 +452,7 @@ public class FileSystemResourceStore implements ResourceStore {
 
         @Override
         public boolean delete() {
-            try(Lock lock = lock()) {
+            try (Lock lock = lock()) {
                 return Files.delete(file);
             }
         }
@@ -508,7 +509,7 @@ public class FileSystemResourceStore implements ResourceStore {
                 }
 
                 java.nio.file.Files.write(temp.toPath(), byteArray);
-                try(Lock lock = lock()) {
+                try (Lock lock = lock()) {
                     // no errors, overwrite the original file
                     Files.move(temp, actualFile);
                 }
