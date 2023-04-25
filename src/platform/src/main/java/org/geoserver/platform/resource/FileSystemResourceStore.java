@@ -163,15 +163,15 @@ public class FileSystemResourceStore implements ResourceStore {
      *
      * <p>This implementation is a stateless data object, acting as a simple handle around a File.
      */
-    class FileSystemResource implements Resource {
+    class FileSystemResource extends FileResource {
 
         String path;
 
         File file;
 
         public FileSystemResource(String path) {
+            super(Paths.toFile(baseDirectory, path));
             this.path = path;
-            this.file = Paths.toFile(baseDirectory, path);
         }
 
         @Override
@@ -184,19 +184,8 @@ public class FileSystemResourceStore implements ResourceStore {
             return Paths.name(path);
         }
 
-        @Override
-        public Lock lock() {
-            return lockProvider.acquire(path);
-        }
-
-        @Override
-        public void addListener(ResourceListener listener) {
-            getResourceNotificationDispatcher().addListener(path, listener);
-        }
-
-        @Override
-        public void removeListener(ResourceListener listener) {
-            getResourceNotificationDispatcher().removeListener(path, listener);
+        protected ResourceNotificationDispatcher getResourceNotificationDispatcher() {
+            return FileSystemResourceStore.this.getResourceNotificationDispatcher();
         }
 
         @Override

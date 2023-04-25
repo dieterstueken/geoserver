@@ -42,12 +42,11 @@ public final class Files {
      * <p>This can be used to handle absolute file references that are not located in the data
      * directory.
      */
-    static final class ResourceAdaptor implements Resource {
+    static final class ResourceAdaptor extends FileResource {
 
-        final File file;
 
         private ResourceAdaptor(File file) {
-            this.file = file.getAbsoluteFile();
+            super(file.getAbsoluteFile());
         }
 
         @Override
@@ -58,11 +57,6 @@ public final class Files {
         @Override
         public String name() {
             return file.getName();
-        }
-
-        @Override
-        public Lock lock() {
-            return () -> {};
         }
 
         @Override
