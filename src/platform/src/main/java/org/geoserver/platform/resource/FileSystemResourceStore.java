@@ -184,6 +184,10 @@ public class FileSystemResourceStore implements ResourceStore {
             return Paths.name(path);
         }
 
+        public LockProvider getLockProvider() {
+            return lockProvider;
+        }
+
         protected ResourceNotificationDispatcher getResourceNotificationDispatcher() {
             return FileSystemResourceStore.this.getResourceNotificationDispatcher();
         }

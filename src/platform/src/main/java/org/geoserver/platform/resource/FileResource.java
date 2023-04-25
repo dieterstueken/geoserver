@@ -2,14 +2,13 @@ package org.geoserver.platform.resource;
 
 import java.io.File;
 
-abstract public class FileResource implements Resource {
+public abstract class FileResource implements Resource {
 
     final File file;
 
     protected FileResource(File file) {
         this.file = file;
     }
-
 
     /**
      * LockProvider used during {@link Resource#out()}.
@@ -30,14 +29,14 @@ abstract public class FileResource implements Resource {
      *
      * @return LockProvider used for {@link Resource#out}
      */
-    abstract public LockProvider getLockProvider();
+    public abstract LockProvider getLockProvider();
 
     @Override
     public Lock lock() {
         return getLockProvider().acquire(path());
     }
 
-    abstract protected ResourceNotificationDispatcher getResourceNotificationDispatcher();
+    protected abstract ResourceNotificationDispatcher getResourceNotificationDispatcher();
 
     @Override
     public void addListener(ResourceListener listener) {

@@ -36,6 +36,8 @@ import org.geotools.util.logging.Logging;
  */
 public final class Files {
 
+    static final LockProvider NULL_LOCK_PROVIDER = new NullLockProvider();
+
     /**
      * Quick Resource adaptor suitable for a single file.
      *
@@ -43,7 +45,6 @@ public final class Files {
      * directory.
      */
     static final class ResourceAdaptor extends FileResource {
-
 
         private ResourceAdaptor(File file) {
             super(file.getAbsoluteFile());
@@ -57,6 +58,16 @@ public final class Files {
         @Override
         public String name() {
             return file.getName();
+        }
+
+        @Override
+        public LockProvider getLockProvider() {
+            return NULL_LOCK_PROVIDER;
+        }
+
+        @Override
+        protected ResourceNotificationDispatcher getResourceNotificationDispatcher() {
+            return watcher;
         }
 
         @Override
